@@ -21,6 +21,9 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bbgsyar.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
+
+
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
@@ -34,6 +37,92 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+        const db = client.db("bioDataDB");
+        const bioDataCollection = db.collection("bioData");
+
+
+    //    post a bio data
+        app.post('/biodatas', async (req, res) => {
+            try {
+                const newBio = req.body;
+
+                if (!newBio?.email) {
+                    return res.status(400).send({ success: false, message: 'Email is required' });
+                }
+
+                // Step 1: Check if a biodata already exists for this user (by email)
+                const existingBiodata = await bioDataCollection.findOne({ email: newBio.email });
+
+                if (existingBiodata) {
+                    // Update the existing biodata
+                    const updateResult = await bioDataCollection.updateOne(
+                        { email: newBio.email },
+                        {
+                            $set: {
+                                ...newBio,
+                                updatedAt: new Date()
+                            }
+                        }
+                    );
+
+                    return res.send({
+                        success: true,
+                        message: 'Biodata updated successfully!',
+                        modifiedCount: updateResult.modifiedCount
+                    });
+                }
+
+                // Step 2: Generate a new biodataId (if not exists)
+                const lastBiodata = await bioDataCollection
+                    .find({})
+                    .sort({ biodataId: -1 })
+                    .limit(1)
+                    .toArray();
+
+                const lastId = lastBiodata.length > 0 ? lastBiodata[0].biodataId : 0;
+                newBio.biodataId = lastId + 1;
+
+                // Step 3: Set flags
+                newBio.isPremium = false;
+                newBio.createdAt = new Date();
+
+                // Step 4: Insert the new biodata
+                const insertResult = await bioDataCollection.insertOne(newBio);
+
+                res.status(201).send({
+                    success: true,
+                    message: 'Biodata created successfully!',
+                    insertedId: insertResult.insertedId,
+                    biodataId: newBio.biodataId
+                });
+
+            } catch (error) {
+                console.error('❌ Biodata POST error:', error.message);
+                res.status(500).send({
+                    success: false,
+                    message: 'Internal server error',
+                });
+            }
+        });
+        
+
+        
+
+
+
+        
+      
+
+
+
+
+
+
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
