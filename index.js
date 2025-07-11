@@ -41,7 +41,7 @@ async function run() {
         const db = client.db("bioDataDB");
         const bioDataCollection = db.collection("bioData");
 
-
+    //    biodata related api start here
     //    post a bio data
         app.post('/biodatas', async (req, res) => {
             try {
@@ -105,6 +105,71 @@ async function run() {
                 });
             }
         });
+
+
+        // get all biodata
+        app.get('/biodatas', async (req, res) => {
+            try {
+                const biodatas = await bioDataCollection
+                    .find({})
+                    .sort({ biodataId: 1 }) // ascending order by ID, change to -1 for descending
+                    .toArray();
+
+                res.send({
+                    success: true,
+                    count: biodatas.length,
+                    data: biodatas
+                });
+            } catch (error) {
+                console.error('❌ Error fetching biodatas:', error.message);
+                res.status(500).send({
+                    success: false,
+                    message: 'Failed to fetch biodatas',
+                });
+            }
+        });
+
+
+
+        // GET: /biodata/:email — Get biodata by user email
+        app.get('/biodata/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+
+                if (!email) {
+                    return res.status(400).send({
+                        success: false,
+                        message: 'Email parameter is required',
+                    });
+                }
+
+                const biodata = await bioDataCollection.findOne({ email });
+
+                if (!biodata) {
+                    return res.status(404).send({
+                        success: false,
+                        message: 'No biodata found for this email',
+                    });
+                }
+
+                res.send({
+                    success: true,
+                    data: biodata,
+                });
+
+            } catch (error) {
+                console.error('❌ Error fetching biodata by email:', error.message);
+                res.status(500).send({
+                    success: false,
+                    message: 'Internal server error',
+                });
+            }
+        });
+
+
+        // biodata related api end here
+
+
         
 
         
