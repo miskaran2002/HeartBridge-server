@@ -167,6 +167,93 @@ async function run() {
         });
 
 
+        app.put('/biodata/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+                const updatedData = req.body;
+
+                if (!email || !updatedData) {
+                    return res.status(400).send({
+                        success: false,
+                        message: 'Email and updated data are required',
+                    });
+                }
+
+                // ✅ Remove _id field if it exists
+                if (updatedData._id) {
+                    delete updatedData._id;
+                }
+
+                const updateResult = await bioDataCollection.updateOne(
+                    { email },
+                    {
+                        $set: {
+                            ...updatedData,
+                            updatedAt: new Date()
+                        }
+                    }
+                );
+
+                if (updateResult.matchedCount === 0) {
+                    return res.status(404).send({
+                        success: false,
+                        message: 'No biodata found to update for this email',
+                    });
+                }
+
+                res.send({
+                    success: true,
+                    message: 'Biodata updated successfully',
+                    modifiedCount: updateResult.modifiedCount
+                });
+
+            } catch (error) {
+                console.error('❌ Error updating biodata:', error.message);
+                res.status(500).send({
+                    success: false,
+                    message: 'Internal server error',
+                });
+            }
+        });
+
+
+
+        // ✅ GET: Get single biodata by biodataId
+        app.get('/biodata/by-id/:biodataId', async (req, res) => {
+            try {
+                const biodataId = parseInt(req.params.biodataId);
+
+                const biodata = await bioDataCollection.findOne({ biodataId });
+
+                if (!biodata) {
+                    return res.status(404).send({
+                        success: false,
+                        message: 'No biodata found with this ID',
+                    });
+                }
+
+                // Optional: ensure biodataId is a number (in case MongoDB returns $numberInt)
+                const sanitized = {
+                    ...biodata,
+                    biodataId: Number(biodata.biodataId),
+                    _id: biodata._id.toString(), // Optional: stringify Mongo _id
+                };
+
+                res.send({
+                    success: true,
+                    data: sanitized,
+                });
+            } catch (error) {
+                console.error('❌ Error fetching biodata by ID:', error.message);
+                res.status(500).send({
+                    success: false,
+                    message: 'Internal server error',
+                });
+            }
+        });
+
+
+
         // biodata related api end here
 
 
