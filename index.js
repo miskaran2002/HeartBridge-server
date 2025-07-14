@@ -5,6 +5,9 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 
 // load env variables from .env file
 dotenv.config();
+const stripe = require('stripe')(process.env.PAYMENT_GATEWAY_KEY);
+
+
 
 
 const app = express();
@@ -40,6 +43,8 @@ async function run() {
 
         const db = client.db("bioDataDB");
         const bioDataCollection = db.collection("bioData");
+        const contactRequestsCollection = db.collection("contactRequests");
+
 
     //    biodata related api start here
     //    post a bio data
@@ -255,6 +260,65 @@ async function run() {
 
 
         // biodata related api end here
+
+        //  contact request related api start here
+  
+        // POST: /contact-requests
+        app.post('/contact-requests',  async (req, res) => {
+            try {
+                const request = req.body;
+
+                request.status = 'pending';           // default status
+                request.createdAt = new Date();       // optional timestamp
+
+                const result = await contactRequestsCollection.insertOne(request);
+
+                res.send({ success: true, insertedId: result.insertedId });
+            } catch (err) {
+                console.error('❌ Error saving contact request:', err);
+                res.status(500).send({ error: err.message });
+            }
+        });
+
+        // GET: /contact-requests?email=user@example.com
+        app.get('/contact-requests',  async (req, res) => {
+            const userEmail = req.query.email;
+            if (!userEmail) return res.status(400).send({ error: 'Missing email' });
+
+            const result = await contactRequestsCollection
+                .find({ email: userEmail })
+                .toArray();
+
+            res.send(result);
+        });
+
+
+
+
+
+
+        app.post('/create-payment-intent', async (req, res) => {
+            try {
+                const { email } = req.body;
+
+                const paymentIntent = await stripe.paymentIntents.create({
+                    amount: 500, // $5 in cents
+                    currency: 'usd',
+                    metadata: { email }, // optional: to track the user
+                });
+
+                res.send({
+                    clientSecret: paymentIntent.client_secret,
+                });
+            } catch (err) {
+                console.error('Error creating PaymentIntent:', err);
+                res.status(500).send({ error: err.message });
+            }
+        });
+
+
+        // contact request related api end
+
 
 
         
