@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv =require('dotenv');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { ObjectId } = require('mongodb');
 
 // load env variables from .env file
 dotenv.config();
@@ -290,6 +291,30 @@ async function run() {
                 .toArray();
 
             res.send(result);
+        });
+        
+
+       
+        // delete contact request
+        app.delete('/contact-requests/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+
+                if (!ObjectId.isValid(id)) {
+                    return res.status(400).send({ success: false, message: 'Invalid ID' });
+                }
+
+                const result = await contactRequestsCollection.deleteOne({ _id: new ObjectId(id) });
+
+                if (result.deletedCount > 0) {
+                    res.send({ success: true, deletedCount: result.deletedCount });
+                } else {
+                    res.status(404).send({ success: false, message: 'Request not found' });
+                }
+            } catch (err) {
+                console.error('❌ Error deleting contact request:', err);
+                res.status(500).send({ success: false, message: err.message });
+            }
         });
 
 
