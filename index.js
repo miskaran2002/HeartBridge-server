@@ -45,6 +45,8 @@ async function run() {
         const db = client.db("bioDataDB");
         const bioDataCollection = db.collection("bioData");
         const contactRequestsCollection = db.collection("contactRequests");
+        const favouritesCollection = db.collection("favourites");
+
 
 
     //    biodata related api start here
@@ -343,6 +345,57 @@ async function run() {
 
 
         // contact request related api end
+
+
+
+        // favourite related api start
+        app.post('/favourites', async (req, res) => {
+            const { userEmail, biodataId, name, occupation, permanentDivision } = req.body;
+
+            if (!userEmail || !biodataId) {
+                return res.status(400).send({ message: 'Missing userEmail or biodataId' });
+            }
+
+            const alreadyExists = await favouritesCollection.findOne({ userEmail, biodataId });
+
+            if (alreadyExists) {
+                return res.status(409).send({ message: 'Already in favourites' });
+            }
+
+            const favouriteDoc = {
+                userEmail,
+                biodataId,
+                name,
+                occupation,
+                permanentDivision,
+                addedAt: new Date(),
+            };
+
+            const result = await favouritesCollection.insertOne(favouriteDoc);
+            res.send(result);
+        });
+
+
+        app.get('/favourites', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                return res.status(400).send({ message: 'Email is required' });
+            }
+
+            const favourites = await favouritesCollection.find({ userEmail: email }).toArray();
+            res.send(favourites);
+        });
+
+       
+        // delete an id
+        app.delete('/favourites/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await favouritesCollection.deleteOne({ _id: new ObjectId(id) });
+            res.send(result);
+        });
+
+
+
 
 
 
