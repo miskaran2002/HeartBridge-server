@@ -46,7 +46,28 @@ async function run() {
         const bioDataCollection = db.collection("bioData");
         const contactRequestsCollection = db.collection("contactRequests");
         const favouritesCollection = db.collection("favourites");
+        const usersCollection = db.collection("users");
+        
+        // users related api start here
+        app.post('/users', async (req, res) => {
+            try {
+                const user = req.body;
+                const existingUser = await usersCollection.findOne({ email: user.email });
 
+                if (existingUser) {
+                    return res.send({ message: 'User already exists', inserted: false });
+                }
+
+                user.role = 'user';
+                user.isPremium = false;
+
+                const result = await usersCollection.insertOne(user);
+                res.send({ message: 'User created', inserted: true, id: result.insertedId });
+            } catch (err) {
+                console.error('User create error:', err);
+                res.status(500).send({ message: 'Server error' });
+            }
+        });
 
 
     //    biodata related api start here
@@ -393,6 +414,9 @@ async function run() {
             const result = await favouritesCollection.deleteOne({ _id: new ObjectId(id) });
             res.send(result);
         });
+
+
+        // favourite related api end
 
 
 
