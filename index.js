@@ -472,6 +472,43 @@ async function run() {
         // favourite related api end
 
 
+       
+// premium related api start
+        // PATCH /biodata/request-premium/:id
+        app.patch('/biodata/request-premium/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await bioDataCollection.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: { premium_status: 'requested' } }
+            );
+            res.send(result);
+        });
+
+
+        app.get('/premium-requested-biodatas', async (req, res) => {
+            try {
+                const requestedBiodatas = await bioDataCollection
+                    .find({ premium_status: 'requested' })
+                    .project({ name: 1, email: 1, biodataId: 1 }) // only return necessary fields
+                    .toArray();
+
+                res.send(requestedBiodatas);
+            } catch (error) {
+                console.error('Failed to get premium requested biodatas:', error);
+                res.status(500).send({ error: 'Internal Server Error' });
+            }
+        });
+
+
+
+        // Add this route in your Express app (e.g., inside index.js or routes file)
+
+       
+
+
+      
+
+
 
 
 
