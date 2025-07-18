@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "heart-bridge-f100e",
+  "private_key_id": "b4a38e35c75ae1500588ddc3b55c15035d338017",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDChnSHnKfQx43O\n8+Fk0qrtJeRmBwz2gEGEQQZE9U5JF06oUEMKmOolQcPiT42GOghfw5dD1f3d+N+g\nFlObWcrMW+cNgok3l7A4TFyTH5NqIp2aSEg5GE0uQx0jzNw3UamSMYpLZrxd9H3K\nBpox5/BsTwZfTzyalH2yl8JLYHjFGqF4qazhiMhk28V9HK+czH1HrsU4hvxO6y+D\nHaOEBnqo2X2A20DSyQURfoNu3+au4OxkxobHU4gSwGm8LoiI2tvXvGxh8y8kZeeC\nYZsad6RY2XBbqH8NQPh1BqNH8vA1RX2gxI9osAZ61dHse/89Bd31syt2VVPQqhYk\nE5FgaPUpAgMBAAECggEADPkgHOo48+7XGYoAynNVVG8OQjKureLkW7BlfWRZxfyg\nsY92xSZpGTZ/XKC/GMhWhiJ6fFrxbSQbr+bFSStOH95yNJ+zzIoYhcyr8ODueSnZ\nVnCDJpGlFhSCRUC0oBjZZQdaSIiPv/leCULy9iiYi3SiwWj8qveDwY0m91V2AHkV\n9KWMDW9io5yk2OUtjHF8RGYsLu+FFLR9m63WccdU9qjVf2miM6mXfysy6rMWqvJL\n84o6W38VeU7Yk8hrBIBlnUQ5JVoYbe7f+TNO3qfdEyVrv5zf7Axbn+dFQiZgUera\nRixjni+4jlVNql3UID0wqv9ehp/rjS99O3blmRdhTQKBgQD8m2vSFRa2YtwduTZw\nHRRgWYSVPT5WIOJuytbkRnb3t+nz2SpTaGNmtwcwyOGK2TiFmUCa6PP8CnckrCk8\nIR9+b/ZawXa01AG0qtLnWAb0+BFvRbSFoTg1O1Dhm4Cth/BjCIb5zD6gzTze0iSq\nZh8PK4miuPvHTb8rKgfnMSIz/QKBgQDFI1JmyOfaRwmZpbRZQ1wOWlWr9K7AnI3H\nZtJYHnyuaobVH8xcfkABrMMFZiLTuk6h7qQEsI8yR0LCrPKj/QyrZeExQ/z7K0EL\n9gM5tsVWEjGSAOdz4lxkYiUXQ/KMOaxsHA9iTF72XEPUxIjiELUdlhNdEz9i8u7C\nVMAH9TRPnQKBgF+xlR/pw0fmnZJZBqlkKsLxRouuvr2sCXuFNfEWTJ09O9CXtTQR\nuI5ByeSORPrvnTznOJU2qK8TW901pw1TUvX3/jCVV53bLqY9jFX9f+0vSJOJqYBx\n+bQYu2QsH4wdklBB+7gHyrXp6iRTIXa35w49JQ/S2fa/misE6ieH8ngVAoGBALOu\nrC6PM/RaB0AKLsWlhcR3RdsDnDxm9TsoVtSGhTIcWmTrJMOxNvnP07maDGhbScyC\nzPCRVROIrCrwpAAgZ2nZ5FWZGH5+QD18sBfspRT8ZD4loNCZI4lDg3cfMXXqI2Qu\ndz8rSOrX0eOedv1GKS6cWW3eW0n/DuwFfzpBnrppAoGAbdvdDPDmr+sqceOuSevX\ndyNkcubfKRJWIlGrOXbcZbSR6rcedtoDPmvYH8fywzeazSKAOTurXLQ3NPp/uS/X\nWvFPE+XOaQPGs1COW1gYe32Nn29x7nc1nanzOCVzqy42cRNnhpBtm9/H0KXP9bMc\n45XH7zgRBUZqGIe9FrdajK4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@heart-bridge-f100e.iam.gserviceaccount.com",
+  "client_id": "108780522223389092599",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40heart-bridge-f100e.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

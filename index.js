@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv =require('dotenv');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { ObjectId } = require('mongodb');
+const admin = require("firebase-admin");
 
 // load env variables from .env file
 dotenv.config();
@@ -19,6 +20,16 @@ const port = process.env.PORT || 5000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+
+ const serviceAccount = require('./firebase-admin-key.json');
+
+ admin.initializeApp({
+     credential: admin.credential.cert(serviceAccount)
+ });
+
+//  console.log(admin.auth().verifyIdToken);
+
 
 
 
@@ -47,7 +58,49 @@ async function run() {
         const contactRequestsCollection = db.collection("contactRequests");
         const favouritesCollection = db.collection("favourites");
         const usersCollection = db.collection("users");
+
+        // custom middleware
+        const verifyFBToken =async (req, res, next) => {
+            console.log('header in middleware',req.headers.authorization);
+             const authHeader = req.headers.authorization;
+             if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized access' });
+            }
+            const token = authHeader.split(' ')[1];
+             if (!token) {
+                 return res.status(401).send({ message: 'Unauthorized access' });
+             }
+           // verify token
+            try {
+              const decoded = await admin.auth().verifyIdToken(token);
+              req.decoded = decoded;
+               next();
+
+               
+           }
+           catch (error) {
+                console.log(error);
+               return res.status(403).send({ message: 'Forbidden access' });
+               
+           }
+
+
+           
+
+            
+         }
+     
         
+
+
+
+
+
+
+
+
+
+
         // users related api start here
         app.post('/users', async (req, res) => {
             try {
@@ -72,7 +125,7 @@ async function run() {
 
     //    biodata related api start here
     //    post a bio data
-        app.post('/biodatas', async (req, res) => {
+        app.post('/biodatas',verifyFBToken, async (req, res) => {
             try {
                 const newBio = req.body;
 
@@ -137,7 +190,7 @@ async function run() {
 
 
         // get all biodata
-        app.get('/biodatas', async (req, res) => {
+        app.get('/biodatas',  async (req, res) => {
             try {
                 const biodatas = await bioDataCollection
                     .find({})
@@ -305,7 +358,7 @@ async function run() {
         });
 
         // GET: /contact-requests?email=user@example.com
-        app.get('/contact-requests',  async (req, res) => {
+        app.get('/contact-requests', verifyFBToken, async (req, res) => {
             const userEmail = req.query.email;
             if (!userEmail) return res.status(400).send({ error: 'Missing email' });
 
@@ -345,7 +398,7 @@ async function run() {
 
 
 
-        app.post('/create-payment-intent', async (req, res) => {
+        app.post('/create-payment-intent',verifyFBToken, async (req, res) => {
             try {
                 const { email } = req.body;
 
@@ -397,8 +450,8 @@ async function run() {
         });
 
 
-        app.get('/favourites', async (req, res) => {
-            const email = req.query.email;
+        app.get('/favourites', verifyFBToken,  async (req, res) => {
+           const email = req.query.email;
             if (!email) {
                 return res.status(400).send({ message: 'Email is required' });
             }
