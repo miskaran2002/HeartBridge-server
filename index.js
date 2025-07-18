@@ -61,7 +61,7 @@ async function run() {
 
         // custom middleware
         const verifyFBToken =async (req, res, next) => {
-            console.log('header in middleware',req.headers.authorization);
+            // console.log('header in middleware',req.headers.authorization);
              const authHeader = req.headers.authorization;
              if (!authHeader) {
         return res.status(401).send({ message: 'Unauthorized access' });
