@@ -501,6 +501,41 @@ async function run() {
 
 
 
+        // Make Premium API
+        app.patch('/biodata/:id/make-premium',verifyFBToken, async (req, res) => {
+            const id = req.params.id;
+
+            try {
+                // Try finding with ObjectId
+                let filter = {};
+                if (ObjectId.isValid(id)) {
+                    filter = { _id: new ObjectId(id) };
+                } else {
+                    filter = { biodataId: parseInt(id) };
+                }
+
+                const result = await bioDataCollection.updateOne(
+                    filter,
+                    {
+                        $set: {
+                            isPremium: true,
+                            premium_status: 'accepted',
+                        },
+                    }
+                );
+                res.send(result);
+            } catch (error) {
+                console.error('Error updating premium:', error);
+                res.status(500).send({ error: 'Internal server error' });
+            }
+        });
+
+
+        
+
+
+
+
         // Add this route in your Express app (e.g., inside index.js or routes file)
 
        
