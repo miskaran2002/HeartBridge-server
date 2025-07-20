@@ -503,6 +503,64 @@ async function run() {
 
 
         // approved contact requests
+
+        
+
+        app.patch('/contact-requests/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const { status = 'approved' } = req.body;
+
+                if (!ObjectId.isValid(id)) {
+                    return res.status(400).send({ success: false, message: 'Invalid ID' });
+                }
+
+                // 1. Get the contact request by ID
+                const contactRequest = await contactRequestsCollection.findOne({ _id: new ObjectId(id) });
+                if (!contactRequest) {
+                    return res.status(404).send({ success: false, message: 'Contact request not found' });
+                }
+
+                // Defensive: ensure biodataId exists on contactRequest
+                if (!contactRequest.biodataId) {
+                    return res.status(400).send({ success: false, message: 'No biodataId associated with this contact request' });
+                }
+
+                // Convert biodataId to number (because in POST route you use numeric biodataId)
+                const biodataIdNum = Number(contactRequest.biodataId);
+
+                if (isNaN(biodataIdNum)) {
+                    return res.status(400).send({ success: false, message: 'Invalid biodataId type' });
+                }
+
+                // 2. Find biodata using numeric biodataId
+                const biodata = await bioDataCollection.findOne({ biodataId: biodataIdNum });
+
+                if (!biodata) {
+                    return res.status(404).send({ success: false, message: 'Biodata not found' });
+                }
+
+                // 3. Update contact request with status, mobile, contactEmail
+                const result = await contactRequestsCollection.updateOne(
+                    { _id: new ObjectId(id) },
+                    {
+                        $set: {
+                            status,
+                            mobile: biodata.mobile || '',
+                            contactEmail: biodata.email || ''
+                        }
+                    }
+                );
+
+                res.send({ success: true, modifiedCount: result.modifiedCount });
+            } catch (err) {
+                console.error('❌ Error updating contact request:', err);
+                res.status(500).send({ success: false, message: err.message });
+            }
+        });
+
+
+
       
 
 
