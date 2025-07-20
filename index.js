@@ -98,6 +98,19 @@ async function run() {
 
 
 
+        // GET /premium-members?sort=asc|desc
+        app.get('/premium-members', async (req, res) => {
+            const sortOrder = req.query.sort === 'desc' ? -1 : 1;
+            const result = await bioDataCollection
+                .find({ isPremium: true, premium_status: 'accepted' })
+                .sort({ age: sortOrder })
+                .limit(6)
+                .toArray();
+            res.send(result);
+        });
+
+
+
 
 
 
@@ -243,6 +256,42 @@ async function run() {
 
 
         // users related api end here
+
+
+        // total biodata stats
+        // GET: /biodata-stats
+        app.get('/biodata-stats', async (req, res) => {
+            try {
+                const db = client.db("bioDataDB");
+                const bioDataCollection = db.collection("bioData");
+               
+
+                
+                const [total, male, female,] = await Promise.all([
+                    bioDataCollection.estimatedDocumentCount(),
+                    bioDataCollection.countDocuments({ biodataType: 'Male' }),
+                    bioDataCollection.countDocuments({ biodataType: 'Female' }),
+                    
+                ]);
+
+                res.send({
+                    success: true,
+                    totalBiodata: total,
+                    totalMale: male,
+                    totalFemale: female,
+                   
+                });
+            } catch (err) {
+                console.error('❌ Failed to get biodata stats:', err);
+                res.status(500).send({
+                    success: false,
+                    message: 'Internal server error while fetching biodata stats'
+                });
+            }
+        });
+
+
+
 
 
     //    biodata related api start here
