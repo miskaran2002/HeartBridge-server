@@ -216,6 +216,28 @@ async function run() {
             res.send(user);
         });
 
+        // Get user role by email
+        app.get('/users/role/:email', async (req, res) => {
+            const email = req.params.email;
+
+            try {
+                const user = await usersCollection.findOne(
+                    { email },
+                    { projection: { role: 1, _id: 0 } }
+                );
+
+                if (!user) {
+                    return res.status(404).send({ message: 'User not found' });
+                }
+
+                res.send({ role: user.role });
+            } catch (error) {
+                console.error('Error fetching role:', error);
+                res.status(500).send({ message: 'Internal server error' });
+            }
+        });
+
+
 
 
 
@@ -457,18 +479,32 @@ async function run() {
             }
         });
 
-        // GET: /contact-requests?email=user@example.com
+        // GET: /contact-requests?email=user@example.com & all contact requests
         app.get('/contact-requests', verifyFBToken, async (req, res) => {
             const userEmail = req.query.email;
-            if (!userEmail) return res.status(400).send({ error: 'Missing email' });
 
-            const result = await contactRequestsCollection
-                .find({ email: userEmail })
-                .toArray();
+            let filter = {};
+            if (userEmail) {
+                filter.email = userEmail;
+            }
 
-            res.send(result);
+            try {
+                const result = await contactRequestsCollection
+                    .find(filter)
+                    .sort({ createdAt: -1 })
+                    .toArray();
+
+                res.send(result);
+            } catch (error) {
+                console.error('Failed to get contact requests:', error);
+                res.status(500).send({ message: 'Failed to get contact requests' });
+            }
         });
-        
+
+
+        // approved contact requests
+      
+
 
        
         // delete contact request
@@ -492,6 +528,10 @@ async function run() {
                 res.status(500).send({ success: false, message: err.message });
             }
         });
+
+
+     
+
 
 
 
