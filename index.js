@@ -102,6 +102,7 @@ async function run() {
 
 
         // users related api start here
+        // create a user
         app.post('/users', async (req, res) => {
             try {
                 const user = req.body;
@@ -121,6 +122,105 @@ async function run() {
                 res.status(500).send({ message: 'Server error' });
             }
         });
+        // get all users
+        app.get('/users', async (req, res) => {
+            try {
+                const users = await usersCollection
+                    .find({})
+                    .project({
+                        name: 1,
+                        email: 1,
+                        photoURL: 1,
+                        role: 1,
+                        created_at: 1,
+                        isPremium: 1,
+                    })
+                    .sort({ created_at: -1 }) // newest first
+                    .toArray();
+
+                res.send(users);
+            } catch (error) {
+                console.error('Error fetching users:', error.message);
+                res.status(500).send({ message: 'Failed to fetch users' });
+            }
+        });
+
+
+
+    //    users search functionality
+        app.get('/users/search', async (req, res) => {
+            const search = req.query.q;
+            if (!search) return res.status(400).send({ message: 'Search query missing' });
+
+            const query = {
+                $or: [
+                    { email: { $regex: search, $options: 'i' } },
+                    { name: { $regex: search, $options: 'i' } }
+                ]
+            };
+
+            const projection = {
+                name: 1,
+                email: 1,
+                photoURL: 1, // fixed from 'photo'
+                role: 1,
+                created_at: 1 // fixed from 'createdAt'
+            };
+
+            const users = await usersCollection
+                .find(query)
+                .project(projection)
+                .sort({ email: 1 }) // Optional: sort by email alphabetically
+                .limit(10) // return more suggestions
+                .toArray();
+
+            res.send(users);
+        });
+
+        // user role update
+        // PATCH: Update user role (make admin or remove admin)
+        app.patch('/users/update-role/:email', async (req, res) => {
+            const email = req.params.email;
+            const { role } = req.body; // expects role: 'admin' or 'user'
+
+            if (!role || !['admin', 'user'].includes(role)) {
+                return res.status(400).send({ message: 'Invalid or missing role' });
+            }
+
+            try {
+                const result = await usersCollection.updateOne(
+                    { email },
+                    { $set: { role } }
+                );
+
+                if (result.modifiedCount === 0) {
+                    return res.status(404).send({ message: 'User not found or role unchanged' });
+                }
+
+                res.send({ message: `User role updated to ${role}`, result });
+            } catch (error) {
+                console.error('Role update failed:', error);
+                res.status(500).send({ message: 'Internal Server Error' });
+            }
+        });
+
+        // Get a user by email
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email });
+
+            if (!user) {
+                return res.status(404).send({ message: 'User not found' });
+            }
+
+            res.send(user);
+        });
+
+
+
+
+
+        // users related api end here
 
 
     //    biodata related api start here
