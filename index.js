@@ -58,6 +58,7 @@ async function run() {
         const contactRequestsCollection = db.collection("contactRequests");
         const favouritesCollection = db.collection("favourites");
         const usersCollection = db.collection("users");
+        const successStoriesCollection = db.collection("successStories");
 
         // custom middleware
         const verifyFBToken =async (req, res, next) => {
@@ -95,6 +96,67 @@ async function run() {
 
 
         // MongoDB collections
+
+
+        // Assuming you have express and MongoDB client set up already
+
+        
+
+        app.post('/api/success-stories', async (req, res) => {
+            try {
+                const { selfBiodataId, partnerBiodataId, coupleImage, reviewText, userEmail } = req.body;
+
+                // Basic validation
+                if (!selfBiodataId || !partnerBiodataId || !reviewText || !userEmail) {
+                    return res.status(400).send({ message: "All required fields must be provided." });
+                }
+
+                const newStory = {
+                    selfBiodataId,
+                    partnerBiodataId,
+                    coupleImage: coupleImage || null,
+                    reviewText,
+                    userEmail,
+                    createdAt: new Date(),
+                };
+
+                const result = await successStoriesCollection.insertOne(newStory);
+
+                if (result.insertedId) {
+                    return res.status(201).send({ message: "Success story submitted!", storyId: result.insertedId });
+                }
+
+                res.status(500).send({ message: "Failed to save success story." });
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ message: "Server error." });
+            }
+        });
+
+
+        app.get('/success-stories', async (req, res) => {
+            try {
+                const successStories = await client
+                    .db("bioDataDB")
+                    .collection("successStories")
+                    .find()
+                    .sort({ _id: -1 }) // latest first
+                    .limit(6) // only latest 6 stories for homepage
+                    .toArray();
+
+                res.send(successStories);
+            } catch (error) {
+                console.error('Error fetching success stories:', error);
+                res.status(500).send({ message: 'Internal Server Error' });
+            }
+        });
+
+
+
+
+
+
+
     //    verify premium user true or false
 
         app.get('/api/users/is-premium', async (req, res) => {
@@ -423,7 +485,7 @@ async function run() {
 
 
         // get all biodata
-        app.get('/biodatas',  async (req, res) => {
+        app.get('/biodatas', async (req, res) => {
             try {
                 const biodatas = await bioDataCollection
                     .find({})
