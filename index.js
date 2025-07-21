@@ -94,6 +94,29 @@ async function run() {
 
 
 
+        // MongoDB collections
+    //    verify premium user true or false
+
+        app.get('/api/users/is-premium', async (req, res) => {
+            const email = req.query.email;
+
+            if (!email) {
+                return res.status(400).send({ message: "Email is required" });
+            }
+
+            const biodata = await bioDataCollection.findOne({ email });
+
+            if (!biodata) {
+                return res.status(404).send({ message: "User biodata not found" });
+            }
+
+            const isPremium = biodata.isPremium === true && biodata.premium_status === 'accepted';
+
+            res.send({ isPremium });
+        });
+
+        
+
 
 
 
