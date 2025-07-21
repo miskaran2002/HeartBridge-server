@@ -388,13 +388,15 @@ async function run() {
             try {
                 const db = client.db("bioDataDB");
                 const bioDataCollection = db.collection("bioData");
+                const successStoriesCollection = db.collection("successStories");
                
 
                 
-                const [total, male, female,] = await Promise.all([
+                const [total, male, female,married] = await Promise.all([
                     bioDataCollection.estimatedDocumentCount(),
                     bioDataCollection.countDocuments({ biodataType: 'Male' }),
                     bioDataCollection.countDocuments({ biodataType: 'Female' }),
+                    successStoriesCollection.estimatedDocumentCount(),
                     
                 ]);
 
@@ -403,6 +405,7 @@ async function run() {
                     totalBiodata: total,
                     totalMale: male,
                     totalFemale: female,
+                    totalMarried: married,
                    
                 });
             } catch (err) {
