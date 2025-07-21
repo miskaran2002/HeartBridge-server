@@ -115,6 +115,45 @@ async function run() {
             res.send({ isPremium });
         });
 
+
+
+        // statistics for admin dashboard
+        app.get('/api/biodata-insights', async (req, res) => {
+            try {
+                const bioDataCollection = db.collection("bioData");
+                const contactRequestsCollection = db.collection("contactRequests"); // use your actual collection name
+
+                // Step 1: Count total, male, female, and premium biodatas
+                const [total, male, female, premium] = await Promise.all([
+                    bioDataCollection.estimatedDocumentCount(),
+                    bioDataCollection.countDocuments({ biodataType: 'Male' }),
+                    bioDataCollection.countDocuments({ biodataType: 'Female' }),
+                    bioDataCollection.countDocuments({ premium_status: 'accepted' }),
+                ]);
+
+                // Step 2: Count approved contact requests
+                const approvedContactsCount = await contactRequestsCollection.countDocuments({ status: 'approved' });
+
+                // Step 3: Calculate total revenue
+                const revenue = approvedContactsCount * 5; // $5 per request
+
+                res.send({
+                    success: true,
+                    totalBiodata: total,
+                    maleBiodata: male,
+                    femaleBiodata: female,
+                    premiumBiodata: premium,
+                    totalContactPurchases: approvedContactsCount,
+                    totalRevenue: revenue
+                });
+            } catch (error) {
+                console.error('Error fetching biodata insights:', error);
+                res.status(500).send({ success: false, message: 'Internal Server Error' });
+            }
+        });
+
+
+
         
 
 
