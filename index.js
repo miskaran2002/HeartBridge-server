@@ -968,7 +968,7 @@ run().catch(console.dir);
 
 // sample route
 app.get('/', (req, res) => {
-    res.send('heartBridge Server is running');
+    res.send('heartBridge Server is running and all is okay!Just chill!');
 })
 
 // start server
